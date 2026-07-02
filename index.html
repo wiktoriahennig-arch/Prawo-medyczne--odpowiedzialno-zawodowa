@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Wiedzy: Odpowiedzialność Zawodowa Pielęgniarek</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-gradient-to-r from-teal-600 to-cyan-700 text-white shadow-md py-6 px-4 sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+            <div>
+                <h1 class="text-2xl md:text-3xl font-bold tracking-tight">Prawo Medyczne – Wykład 6 ⚖️</h1>
+                <p class="text-teal-100 text-sm mt-1">Odpowiedzialność zawodowa, procedury rzecznikowskie i sądownictwo samorządowe (52 pytania)</p>
+            </div>
+            <div class="bg-white/10 backdrop-blur-md rounded-lg p-3 text-center border border-white/20 min-w-[180px]">
+                <div class="text-xs uppercase tracking-wider text-teal-200 font-semibold">Twój wynik</div>
+                <div class="text-2xl font-black mt-1" id="score-display">0 / 52</div>
+                <div class="text-[10px] text-teal-100 mt-1" id="percent-display">Postęp: 0%</div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow max-w-4xl w-full mx-auto px-4 py-8">
+        
+        <!-- Controls -->
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4 mb-8 flex flex-wrap gap-4 items-center justify-between">
+            <div class="flex items-center gap-2">
+                <span class="inline-flex h-3.5 w-3.5 rounded-full bg-teal-500 animate-pulse"></span>
+                <span class="text-sm font-medium text-slate-600" id="stats-counter">Rozwiązano: 0 z 52 pytań</span>
+            </div>
+            <div class="flex gap-2">
+                <button onclick="resetTest()" class="px-4 py-2 text-sm font-semibold text-slate-700 hover:text-red-600 hover:bg-red-50 border border-slate-200 rounded-lg transition-colors">
+                    Resetuj test
+                </button>
+                <button onclick="showAllCorrectAnswers()" class="px-4 py-2 text-sm font-semibold text-white bg-slate-800 hover:bg-slate-700 rounded-lg transition-colors">
+                    Pokaż odpowiedzi
+                </button>
+            </div>
+        </div>
+
+        <!-- Questions Container -->
+        <div id="questions-container" class="space-y-6">
+            <!-- Questions injected via JS -->
+        </div>
+
+    </main>
+
+    <footer class="bg-slate-900 text-slate-400 text-center py-4 mt-12 border-t border-slate-800 text-xs">
+        <p>Aplikacja treningowa – Ustawa o samorządzie pielęgniarek i położnych (Odpowiedzialność zawodowa).</p>
+    </footer>
+
+    <script>
+        const quizData = [
+            {
+                id: 1,
+                question: "Do podstawowych form odpowiedzialności związanych z wykonywaniem zawodu NIE należy odpowiedzialność:",
+                correct: "Konsumencka",
+                options: ["Cywilna", "Zawodowa", "Konsumencka"],
+                explanations: {
+                    "Cywilna": "Błąd! Odpowiedzialność cywilna (majątkowa za szkodę) jest jedną z podstawowych form wymienionych na wykładzie.",
+                    "Zawodowa": "Błąd! Odpowiedzialność zawodowa przed organami samorządu to kluczowy element struktury wykładu.",
+                    "Konsumencka": "Prawidłowo! Wykład wymienia cztery formy: karną, cywilną, zawodową i pracowniczą. Konsumencka nie występuje w tym spisie."
+                }
+            },
+            {
+                id: 2,
+                question: "Podstawą pociągnięcia do odpowiedzialności zawodowej jest popełnienie czynu stanowiącego:",
+                correct: "przewinienie zawodowe",
+                options: ["wykroczenie skarbowe", "przewinienie zawodowe", "przestępstwo prywatnoskargowe"],
+                explanations: {
+                    "wykroczenie skarbowe": "Błąd! Wykroczenia skarbowe dotyczą podatków i finansów publicznych.",
+                    "przewinienie zawodowe": "Prawidłowo! Zgodnie z art. 36 ustawy o samorządzie, przewinienie zawodowe to naruszenie zasad etyki lub przepisów dotyczących wykonywania zawodu.",
+                    "przestępstwo prywatnoskargowe": "Błąd! Przestępstwa podlegają pod Kodeks Karny i sądy powszechne, a nie orzecznictwo korporacyjne."
+                }
+            },
+            {
+                id: 3,
+                question: "Odpowiedzialności zawodowej przed organami samorządu podlegają:",
+                correct: "wszyscy członkowie samorządu posiadający PWZ i wpisani na listę",
+                options: ["wyłącznie pielęgniarki zatrudnione na stanowiskach dyrektorskich", "wszyscy członkowie samorządu posiadający PWZ i wpisani na listę", "tylko i wyłącznie studenci odbywający praktyki"],
+                explanations: {
+                    "wyłącznie pielęgniarki zatrudnione...": "Błąd! Stanowisko nie ma znaczenia, reżimowi podlegają wszyscy członkowie samorządu.",
+                    "wszyscy członkowie samorządu posiadający PWZ i wpisani na listę": "Prawidłowo! Warunkiem podmiotowym jest legitymowanie się PWZ oraz aktywny status na liście członków okręgowej izby.",
+                    "tylko i wyłącznie studenci...": "Błąd! Studenci nie posiadają jeszcze PWZ, więc podlegają pod regulaminy dyscyplinarne uczelni, a nie izby."
+                }
+            },
+            {
+                id: 4,
+                question: "Naruszenie zasad etyki zawodowej definiuje się jako działanie lub zaniechanie stojące w sprzeczności z:",
+                correct: "regulacjami etycznymi (np. Kodeksem Etyki)",
+                options: ["regulacjami etycznymi (np. Kodeksem Etyki)", "wewnętrznym regulaminem czasu pracy szpitala", "wytycznymi Międzynarodowego Funduszu Walutowego"],
+                explanations: {
+                    "regulacjami etycznymi (np. Kodeksem Etyki)": "Prawidłowo! Chodzi o naruszenie zakazu lub nierealizowanie nakazu zapisanego w regulacjach deontologicznych samorządu.",
+                    "wewnętrznym regulaminem czasu...": "Błąd! Naruszenie regulaminu pracy to podstawa odpowiedzialności pracowniczej, a nie zawodowej.",
+                    "wytycznymi Międzynarodowego...": "Błąd! Całkowicie oderwana opcja dystrakcyjna."
+                }
+            },
+            {
+                id: 5,
+                question: "Stronami postępowania w przedmiocie odpowiedzialności zawodowej są wyłącznie:",
+                correct: "pokrzywdzony i osoba obwiniona",
+                options: ["prokurator i świadek", "pokrzywdzony i osoba obwiniona", "kierownik podmiotu leczniczego i ubezpieczyciel"],
+                explanations: {
+                    "prokurator i świadek": "Błąd! To podmioty procedury karnej przed sądem powszechnym.",
+                    "pokrzywdzony i osoba obwiniona": "Prawidłowo! Wykład wprost wymienia te dwa podmioty jako jedyne strony postępowania dyscyplinarnego.",
+                    "kierownik podmiotu leczniczego...": "Błąd! Mogą być zaangażowani w procesy cywilne o odszkodowanie, ale nie są stronami w sądzie zawodowym."
+                }
+            },
+            {
+                id: 6,
+                question: "Pokrzywdzonym w rozumieniu przepisów o odpowiedzialności zawodowej może być:",
+                correct: "osoba fizyczna, osoba prawna lub jednostka organizacyjna, której dobro naruszono",
+                options: ["wyłącznie osoba fizyczna posiadająca polskie obywatelstwo", "osoba fizyczna, osoba prawna lub jednostka organizacyjna, której dobro naruszono", "wyłącznie Narodowy Fundusz Zdrowia"],
+                explanations: {
+                    "wyłącznie osoba fizyczna...": "Błąd! Pokrzywdzonym może być też szpital (osoba prawna) lub inna jednostka.",
+                    "osoba fizyczna, osoba prawna lub jednostka organizacyjna, której dobro naruszono": "Prawidłowo! Dobro prawne pokrzywdzonego musi zostać bezpośrednio naruszone lub zagrożone przez przewinienie.",
+                    "wyłącznie Narodowy Fundusz Zdrowia": "Błąd! NFZ rzadko występuje w tej roli, najczęściej pokrzywdzonym jest pacjent."
+                }
+            },
+            {
+                id: 7,
+                question: "Osoba obwiniona to pielęgniarka, wobec której rzecznik wydał:",
+                correct: "postanowienie o przedstawieniu zarzutu lub skierował wniosek o ukaranie",
+                options: ["ustne upomnienie podczas rozmowy dyscyplinującej", "wezwanie do zapłaty zaległych składek członkowskich", "postanowienie o przedstawieniu zarzutu lub skierował wniosek o ukaranie"],
+                explanations: {
+                    "ustne upomnienie...": "Błąd! Rozmowa nie nadaje formalnego statusu osoby obwinionej.",
+                    "wezwanie do zapłaty zaległych...": "Błąd! To czynność administracyjno-skarbowa izby.",
+                    "postanowienie o przedstawieniu zarzutu lub skierował wniosek o ukaranie": "Prawidłowo! Wydanie tego postanowienia w toku postępowania wyjaśniającego konstytuuje formalny status 'obwinionego'."
+                }
+            },
+            {
+                id: 8,
+                question: "Osoba obwiniona ma prawo do ustanowienia obrońców w maksymalnej liczbie:",
+                correct: "do dwóch obrońców",
+                options: ["jednego obrońcy", "do dwóch obrońców", "brak limitów ilościowych"],
+                explanations: {
+                    "jednego obrońcy": "Błąd! Ustawa pozwala na ustanowienie większej liczby obrońców.",
+                    "do dwóch obrońców": "Prawidłowo! Obwiniona może mieć do dwóch obrońców powołanych z wyboru lub z urzędu.",
+                    "brak limitów ilościowych": "Błąd! Ustawa sztywno ogranicza liczbę obrońców do dwóch."
+                }
+            },
+            {
+                id: 9,
+                question: "Obrońcą osoby obwinionej przed sądem pielęgniarskim MOŻE być:",
+                correct: "inna pielęgniarka, adwokat lub radca prawny",
+                options: ["wyłącznie lekarz o statusie profesora", "inna pielęgniarka, adwokat lub radca prawny", "każdy świadek powołany do sprawy"],
+                explanations: {
+                    "wyłącznie lekarz o statusie...": "Błąd! Lekarz nie może pełnić roli obrońcy w sądzie pielęgniarskim.",
+                    "inna pielęgniarka, adwokat lub radca prawny": "Prawidłowo! Ustawa dopuszcza obronę zawodową (inna pielęgniarka) lub profesjonalną prawniczą (adwokat/radca).",
+                    "każdy świadek powołany...": "Błąd! Łączenie roli świadka i obrońcy jest proceduralnie wykluczone."
+                }
+            },
+            {
+                id: 10,
+                question: "Pierwszym etapem procedury, mającym na celu ustalenie, czy istnieją podstawy do wszczęcia postępowania wyjaśniającego, są:",
+                correct: "czynności sprawdzające",
+                options: ["czynności sprawdzające", "postępowanie wykonawcze", "rozprawa główna przed sądem krajowym"],
+                explanations: {
+                    "czynności sprawdzające": "Prawidłowo! To etap wstępny, przedoficjalny, badający zarys faktów.",
+                    "postępowanie wykonawcze": "Błąd! To ostatni etap, polegający na egzekwowaniu zapadłych kar.",
+                    "rozprawa główna...": "Błąd! Rozprawa to element etapu trzeciego (postępowania przed sądem)."
+                }
+            },
+            {
+                id: 11,
+                question: "Ustalenie, czy został popełniony czyn, oraz zebranie i zabezpieczenie dowodów dla sądu to zadanie postępowania:",
+                correct: "wyjaśniającego",
+                options: ["sprawdzającego", "wyjaśniającego", "wykonawczego"],
+                explanations: {
+                    "sprawdzającego": "Błąd! Etap sprawdzający jedynie inicjuje proces weryfikacji haseł skargi.",
+                    "wyjaśniającego": "Prawidłowo! To zasadnicze śledztwo prowadzone przez Rzecznika Odpowiedzialności Zawodowej.",
+                    "wykonawczego": "Błąd! Wykonawcze następuje po wyroku."
+                }
+            },
+            {
+                id: 12,
+                question: "Zasada domniemania niewinności w postępowaniu zawodowym oznacza, że obwinionego uważa się za niewinnego, dopóki wina nie zostanie stwierdzona:",
+                correct: "prawomocnym orzeczeniem sądu pielęgniarek i położnych",
+                options: ["decyzją pokrzywdzonego wpisaną do rejestru", "uchwałą Zarządu Głównego NFZ", "prawomocnym orzeczeniem sądu pielęgniarek i położnych"],
+                explanations: {
+                    "decyzją pokrzywdzonego...": "Błąd! Strona skarżąca nie orzeka o winie.",
+                    "uchwałą Zarządu Głównego NFZ": "Błąd! NFZ to płatnik kontraktowy, nie organ wymiaru sprawiedliwości.",
+                    "prawomocnym orzeczeniem sądu pielęgniarek i położnych": "Prawidłowo! Domniemanie obala dopiero prawomocny wyrok niezawisłego sądu korporacyjnego."
+                }
+            },
+            {
+                id: 13,
+                question: "Zasada 'in dubio pro reo' nakazuje wszelkie niedające się usunąć wątpliwości tłumaczyć:",
+                correct: "na korzyść osoby obwinionej",
+                options: ["na korzyść pokrzywdzonego pacjenta", "na korzyść osoby obwinionej", "na korzyść budżetu okręgowej izby"],
+                explanations: {
+                    "na korzyść pokrzywdzonego...": "Błąd! To zaprzeczenie standardu obrony prawnej i domniemania niewinności.",
+                    "na korzyść osoby obwinionej": "Prawidłowo! Wszystkie wątpliwości, których nie da się usunąć dowodowo, bezwzględnie rozstrzyga się na korzyść obwinionej.",
+                    "na korzyść budżetu...": "Błąd! Finanse izby nie mają wpływu na ocenę dowodów."
+                }
+            },
+            {
+                id: 14,
+                question: "Przedawnienie wszczęcia postępowania – nie można wszcząć postępowania zawodowego, jeżeli od chwili popełnienia czynu upłynęły:",
+                correct: "3 lata",
+                options: ["1 rok", "3 lata", "5 lat"],
+                explanations: {
+                    "1 rok": "Błąd! Termin jest dłuższy, by umożliwić wykrycie uchybień.",
+                    "3 lata": "Prawidłowo! Upływ 3 lat od czynu stanowi bezwzględną barierę dla możliwości wszczęcia postępowania.",
+                    "5 lat": "Błąd! 5 lat dotyczy ustania karalności czynu już objętego postępowaniem."
+                }
+            },
+            {
+                id: 15,
+                question: "Przedawnienie karalności – karalność przewinienia zawodowego ustaje całkowicie, jeżeli od czasu jego popełnienia upłynęło:",
+                correct: "5 lat",
+                options: ["2 lata", "3 lata", "5 lat"],
+                explanations: {
+                    "2 lata": "Błąd! Za krótki czas.",
+                    "3 lata": "Błąd! 3 lata to termin na samo wszczęcie śledztwa.",
+                    "5 lat": "Prawidłowo! Po 5 latach od czynu karalność dyscyplinarna wygasa z mocy prawa."
+                }
+            },
+            {
+                id: 16,
+                question: "Jeżeli przewinienie zawodowe stanowi jednocześnie przestępstwo karne, przedawnienie karalności następuje:",
+                correct: "nie wcześniej niż ustanie karalności przestępstwa (zgodnie z KK)",
+                options: ["zawsze sztywno po 3 latach bez względu na Kodeks Karny", "nie wcześniej niż ustanie karalności przestępstwa (zgodnie z KK)", "w momencie wpisu lekarza sądowego do akt"],
+                explanations: {
+                    "zawsze sztywno po 3 latach...": "Błąd! Przestępstwa kryminalne mają znacznie dłuższe okresy przedawnienia, które absorbują termin zawodowy.",
+                    "nie wcześniej niż ustanie karalności przestępstwa (zgodnie z KK)": "Prawidłowo! To reguła synchronizacji terminów — jeśli czyn jest zbrodnią/występkiem, termin dyscyplinarny ulega wydłużeniu do ram Kodeksu Karnego.",
+                    "w momencie wpisu lekarza...": "Błąd! Czynność biegłego nie wyznacza ram przedawnienia."
+                }
+            },
+            {
+                id: 17,
+                question: "W przypadkach niecierpiących zwłoki (ryzyko zatarcia śladów), rzecznik może przesłuchać pielęgniarkę jako obwinioną:",
+                correct: "przed formalnym wydaniem postanowienia o przedstawieniu zarzutów",
+                options: ["wyłącznie po uzyskaniu zgody Sądu Najwyższego", "przed formalnym wydaniem postanowienia o przedstawieniu zarzutów", "tylko i wyłącznie w obecności prokuratora krajowego"],
+                explanations: {
+                    "wyłącznie po uzyskaniu zgody...": "Błąd! Sąd Najwyższy nie kontroluje bieżących przesłuchań rzecznika na tym etapie.",
+                    "przed formalnym wydaniem postanowienia o przedstawieniu zarzutów": "Prawidłowo! To wyjątek proceduralny dopuszczający natychmiastowe przesłuchanie dla zabezpieczenia dowodów.",
+                    "tylko i wyłącznie w obecności...": "Błąd! Procedura samorządowa jest niezależna od struktur prokuratury powszechnej."
+                }
+            },
+            {
+                id: 18,
+                question: "Jeżeli materiał dowodowy postępowania wyjaśniającego nie dostarczył podstaw do sporządzenia wniosku o ukaranie, rzecznik wydaje:",
+                correct: "postanowienie o umorzeniu postępowania",
+                options: ["wniosek o warunkowe skazanie bez rozprawy", "postanowienie o umorzeniu postępowania", "nakaz przymusowego doprowadzenia świadków"],
+                explanations: {
+                    "wniosek o warunkowe skazanie...": "Błąd! Brak podstaw do ukarania wyklucza konstruowanie wniosków skazujących.",
+                    "postanowienie o umorzeniu postępowania": "Prawidłowo! Brak dowodów winy skutkuje formalnym zamknięciem i umorzeniem sprawy.",
+                    "nakaz przymusowego doprowadzenia...": "Błąd! To środek przymusu, a nie merytoryczne zakończenie postępowania."
+                }
+            },
+            {
+                id: 19,
+                question: "Rzecznik składa do sądu formalny wniosek o ukaranie w terminie:",
+                correct: "14 dni od dnia wydania postanowienia o zamknięciu postępowania wyjaśniającego",
+                options: ["7 dni", "14 dni od dnia wydania postanowienia o zamknięciu postępowania wyjaśniającego", "3 miesięcy"],
+                explanations: {
+                    "7 dni": "Błąd! Ustawa daje rzecznikowi pełne dwa tygodnie na sformułowanie i wysłanie dokumentu.",
+                    "14 dni od dnia wydania postanowienia o zamknięciu postępowania wyjaśniającego": "Prawidłowo! To sztywny, ustawowy termin 14 dni na przekazanie skargi do sądu medycznego.",
+                    "3 miesięcy": "Błąd! Zbyt długi termin, naruszający zasadę sprawności postępowania."
+                }
+            },
+            {
+                id: 20,
+                question: "Gdy dowody wskazują na winę, a dalsza praca obwinionej zagraża pacjentom, sąd może wydać postanowienie o tymczasowym zawieszeniu PWZ na okres do:",
+                correct: "12 miesięcy",
+                options: ["1 miesiąca", "6 miesięcy", "12 miesięcy"],
+                explanations: {
+                    "1 miesiąca": "Błąd! Za krótki czas na zabezpieczenie toku dłuższego procesu.",
+                    "6 miesięcy": "Błąd! Limit maksymalny środka zapobiegawczego jest wyższy.",
+                    "12 miesięcy": "Prawidłowo! Sąd może tymczasowo zawiesić prawo wykonywania zawodu na okres nieprzekraczający 12 miesięcy."
+                }
+            },
+            {
+                id: 21,
+                question: "Postanowienie sądu o tymczasowym zawieszeniu PWZ (jako środek zabezpieczający) jest:",
+                correct: "natychmiast wykonalne",
+                options: ["wykonalne dopiero po odrzuceniu kasacji przez SN", "natychmiast wykonalne", "uzależnione od zgody Ministra Zdrowia"],
+                explanations: {
+                    "wykonalne dopiero po odrzuceniu...": "Błąd! Środek ten straciłby sens ochronny, gdyby wymagał wieloletniego czekania na wyrok ostateczny.",
+                    "natychmiast wykonalne": "Prawidłowo! Natychmiastowa wykonalność chroni pacjentów przed ewentualnym niebezpieczeństwem ze strony obwinionej.",
+                    "uzależnione od zgody Ministra...": "Błąd! Władza wykonawcza nie zatwierdza postanowień sądów korporacyjnych."
+                }
+            },
+            {
+                id: 22,
+                question: "Właściwym do rozpoznania sprawy w pierwszej instancji jest sąd okręgowy izby, której obwiniona jest członkiem w chwili:",
+                correct: "wszczęcia postępowania",
+                options: ["popełnienia czynu", "wszczęcia postępowania", "złożenia skargi przez pacjenta w sekretariacie dyrektora"],
+                explanations: {
+                    "popełnienia czynu": "Błąd! Pielęgniarka mogła w międzyczasie zmienić izbę terytorialną — decyduje moment formalnego startu procedury.",
+                    "wszczęcia postępowania": "Prawidłowo! Kryterium ramy czasowej właściwości sądu to moment oficjalnego wszczęcia postępowania wyjaśniającego.",
+                    "złożenia skargi przez pacjenta...": "Błąd! Skarga do dyrektora szpitala nie jest tożsama z formalnym wszczęciem procedury dyscyplinarnej przez rzecznika."
+                }
+            },
+            {
+                id: 23,
+                question: "Okręgowy sąd pielęgniarek i położnych (I instancja) orzeka w składzie:",
+                correct: "trzyosobowym",
+                options: ["jednoosobowym", "trzyosobowym", "pięcioosobowym"],
+                explanations: {
+                    "jednoosobowym": "Błąd! Sprawy dyscyplinarne z racji powagi skutków wymagają składu kolegialnego.",
+                    "trzyosobowym": "Prawidłowo! Skład orzekający sądu okręgowego (pierwszoinstancyjnego) liczy 3 członków.",
+                    "pięcioosobowym": "Błąd! Skład 5-osobowy jest zastrzeżony dla rozpraw przed Naczelnym Sądem w Warszawie."
+                }
+            },
+            {
+                id: 24,
+                question: "Naczelny Sąd Pielęgniarek i Położnych (II instancja odwoławcza) orzeka w składzie:",
+                correct: "pięcioosobowym",
+                options: ["trzyosobowym", "pięcioosobowym", "pełnym składzie wszystkich delegatów zjazdu"],
+                explanations: {
+                    "trzyosobowym": "Błąd! Skład 3-osobowy orzeka w pierwszej instancji (okręgowej).",
+                    "pięcioosobowym": "Prawidłowo! Sąd odwoławczy szczebla krajowego (Naczelny Sąd) podejmuje wyroki w składzie 5 sędziów.",
+                    "pełnym składzie wszystkich...": "Błąd! Zjazd to organ uchwałodawczo-ustawodawczy samorządu, nie sądowy."
+                }
+            },
+            {
+                id: 25,
+                question: "Rozprawa przed sądem zawodowym co do zasady jest:",
+                correct: "jawna",
+                options: ["bezwzględnie niejawna (tajna)", "jawna", "dostępna wyłącznie dla ubezpieczyciela szpitala"],
+                explanations: {
+                    "bezwzględnie niejawna (tajna)": "Błąd! Niejawność to wyjątek (np. ochrona drastycznej prywatności), a nie reguła ogólna.",
+                    "jawna": "Prawidłowo! Obowiązuje ogólna zasada jawności postępowań sądowych.",
+                    "dostępna wyłącznie dla...": "Błąd! Ubezpieczyciel nie ma uprzywilejowanego statusu publiczności wejścia na salę."
+                }
+            },
+            {
+                id: 26,
+                question: "Do podstawowych, końcowych rodzajów rozstrzygnięć (wyroków) sądu NIE należy:",
+                correct: "Przekazanie do wykonania przez komornika skarbowego",
+                options: ["Umorzenie", "Uniewinnienie", "Przekazanie do wykonania przez komornika skarbowego"],
+                explanations: {
+                    "Umorzenie": "Błąd! Umorzenie to jedno z trzech bazowych rozstrzygnięć wskazanych na wykładzie.",
+                    "Uniewinnienie": "Błąd! Uniewinnienie następuje przy braku dowodów winy i jest bazowym wyrokiem.",
+                    "Przekazanie do wykonania przez komornika skarbowego": "Prawidłowo! Wykład wymienia trzy rozstrzygnięcia: umorzenie, uniewinnienie oraz ukaranie. Opcja komornicza nie stanowi typu wyroku merytorycznego sądu izby."
+                }
+            },
+            {
+                id: 27,
+                question: "Sąd orzeka obligatoryjnie UMORZENIE postępowania, jeżeli nastąpiła śmierć obwinionej lub:",
+                correct: "nastąpiło przedawnienie (ustanie karalności) czynu",
+                options: ["pokrzywdzony wyjechał na urlop wypoczynkowy", "nastąpiło przedawnienie (ustanie karalności) czynu", "obwiniona zmieniła miejsce zamieszkania na inną dzielnicę"],
+                explanations: {
+                    "pokrzywdzony wyjechał na urlop...": "Błąd! Nieobecność tymczasowa strony nie powoduje unicestwienia procesu.",
+                    "nastąpiło przedawnienie (ustanie karalności) czynu": "Prawidłowo! Ustanie karalności z racji upływu czasu (przedawnienie) wyklucza możliwość dalszego sądzenia i skutkuje umorzeniem.",
+                    "obwiniona zmieniła miejsce...": "Błąd! Przeprowadzka wewnątrz kraju nie przerywa jurysdykcji sądu."
+                }
+            },
+            {
+                id: 28,
+                question: "Wyrok UNIEWINNIAJĄCY zapada w sytuacji, gdy udowodniono, że:",
+                correct: "czynu nie popełniono lub czyn nie stanowi przewinienia zawodowego",
+                options: ["czynu nie popełniono lub czyn nie stanowi przewinienia zawodowego", "szkoda pacjenta została w całości pokryta przez polisę OC", "obwiniona złożyła pisemne oświadczenie przeprosinowe"],
+                explanations: {
+                    "czynu nie popełniono lub czyn nie stanowi przewinienia zawodowego": "Prawidłowo! To dwie główne, ustawowe przesłanki uniewinnienia (brak czynu/brak znamion przewinienia).",
+                    "szkoda pacjenta została...": "Błąd! Likwidacja szkody majątkowej z polisy nie kasuje odpowiedzialności dyscyplinarnej za złamanie zasad etyki.",
+                    "obwiniona złożyła pisemne...": "Błąd! Przeprosiny mogą wpływać na wymiar kary, ale nie stanowią podstawy uniewinnienia przy ewidentnym fakcie winy."
+                }
+            },
+            {
+                id: 29,
+                question: "Najbardziej łagodną, podstawową karą dyscyplinarną wymienioną w katalogu jest:",
+                correct: "Upomnienie",
+                options: ["Upomnienie", "Nagana", "Kara pieniężna"],
+                explanations: {
+                    "Upomnienie": "Prawidłowo! Upomnienie otwiera ustawowy katalog kar i stanowi najniższy wymiar sankcji moralno-zawodowej.",
+                    "Nagana": "Błąd! Nagana to kara surowsza niż upomnienie.",
+                    "Kara pieniężna": "Błąd! Kara finansowa niesie za sobą realne obciążenie majątkowe i jest surowsza."
+                }
+            },
+            {
+                id: 30,
+                question: "Kara pieniężna orzekana przez sąd zawodowy na cel społeczny związany z ochroną zdrowia mieści się w granicach:",
+                correct: "od 1000 do 10 000 zł",
+                options: ["od 100 do 1000 zł", "od 1000 do 10 000 zł", "sztywno 50 000 zł pod rygorem zamknięcia podmiotu"],
+                explanations: {
+                    "od 100 do 1000 zł": "Błąd! Stawki minimalne i maksymalne są wyższe.",
+                    "od 1000 do 10 000 zł": "Prawidłowo! Taki przedział kwotowy (1 tys. - 10 tys. PLN) określa ustawa.",
+                    "sztywno 50 000 zł...": "Błąd! Mylisz karę dyscyplinarną nałożoną na osobę fizyczną z karami administracyjnymi RPP nakładanymi na szpitale."
+                }
+            },
+            {
+                id: 31,
+                question: "Kara ograniczenia zakresu czynności w wykonywaniu zawodu może być orzeczona na okres od:",
+                correct: "6 miesięcy do 2 lat",
+                options: ["1 miesiąca do 3 miesięcy", "6 miesięcy do 2 lat", "sztywno 5 lat bez możliwości skrócenia"],
+                explanations: {
+                    "1 miesiąca do 3 miesięcy": "Błąd! Okresy minimalne i maksymalne są dłuższe.",
+                    "6 miesięcy do 2 lat": "Prawidłowo! Sąd zawęża uprawnienia pielęgniarki (wskazując konkretne zakazane czynności) na czas od 6 miesięcy do 2 lat.",
+                    "sztywno 5 lat...": "Błąd! Granica maksymalna dla tej konkretnej kary wynosi 2 lata."
+                }
+            },
+            {
+                id: 32,
+                question: "Kara zawieszenia prawa wykonywania zawodu (PWZ) może być nałożona na okres od:",
+                correct: "1 roku do 5 lat",
+                options: ["1 miesiąca do 6 miesięcy", "1 roku do 5 lat", "bezwzględnie dożywotnio"],
+                explanations: {
+                    "1 miesiąca do 6 miesięcy": "Błąd! Zawieszenie PWZ to jedna z najsurowszych kar, orzekana w dłuższym wymiarze.",
+                    "1 roku do 5 lat": "Prawidłowo! Ustawa określa ramy kary zawieszenia na czas od 1 roku do 5 lat.",
+                    "bezwzględnie dożywotnio": "Błąd! Odpowiednikiem dożywotniego wykluczenia jest odrębna kara: pozbawienie prawa wykonywania zawodu."
+                }
+            },
+            {
+                id: 33,
+                question: "Najbardziej surową karą dyscyplinarną, skutkującą bezwzględnym skreśleniem z rejestru samorządowego jest:",
+                correct: "pozbawienie prawa wykonywania zawodu",
+                options: ["zawieszenie PWZ na 5 lat", "zakaz pełnienia funkcji kierowniczych", "pozbawienie prawa wykonywania zawodu"],
+                explanations: {
+                    "zawieszenie PWZ na 5 lat": "Błąd! Zawieszenie jest terminowe — po 5 latach uprawnienia można odzyskać.",
+                    "zakaz pełnienia funkcji...": "Błąd! Kara ta eliminuje jedynie ze stanowisk menedżerskich, pozwalając na standardową pracę przy pacjencie.",
+                    "pozbawienie prawa wykonywania zawodu": "Prawidłowo! To permanentna eliminacja z zawodu, oznaczająca całkowite skreślenie z listy i rejestru izby."
+                }
+            },
+            {
+                id: 34,
+                question: "Bieg kary zawieszenia prawa wykonywania zawodu rozpoczyna się z chwilą:",
+                correct: "uprawomocnienia się orzeczenia sądu",
+                options: ["ogłoszenia zarzutów przez rzecznika", "uprawomocnienia się orzeczenia sądu", "podpisania protokołu przez pokrzywdzonego pacjenta"],
+                explanations: {
+                    "ogłoszenia zarzutów przez...": "Błąd! Zarzuty to etap śledztwa, nie można wykonywać kary przed wyrokiem.",
+                    "uprawomocnienia się orzeczenia sądu": "Prawidłowo! Wyrok musi stać się ostateczny (prawomocny), by wywołać skutek rozpoczęcia biegu kary zawieszenia.",
+                    "podpisania protokołu przez...": "Błąd! Pokrzywdzony nie autoryzuje momentu wykonania wyroku państwowego/samorządowego."
+                }
+            },
+            {
+                id: 35,
+                question: "Okres stosowania tymczasowego zawieszenia (środka zabezpieczającego w toku śledztwa):",
+                correct: "zalicza się w całości na poczet orzeczonej kary zawieszenia PWZ",
+                options: ["przepada i nie ma wpływu na końcowy wyrok", "zalicza się w całości na poczet orzeczonej kary zawieszenia PWZ", "powoduje automatyczne podwojenie kary finansowej"],
+                explanations: {
+                    "przepada i nie ma wpływu...": "Błąd! Byłoby to rażące naruszenie zasad sprawiedliwości (czas bez pracy przed wyrokiem musi być uwzględniony).",
+                    "zalicza się w całości na poczet orzeczonej kary zawieszenia PWZ": "Prawidłowo! Identycznie jak w prawie karnym zalicza się czas aresztu na poczet kary więzienia.",
+                    "powoduje automatyczne podwojenie...": "Błąd! Środek zabezpieczający nie modyfikuje wysokości stawek kary pieniężnej."
+                }
+            },
+            {
+                id: 36,
+                question: "Ogłoszenie orzeczenia (wyroku) przez skład sędziowski izby jest:",
+                correct: "zawsze jawne",
+                options: ["zawsze niejawne (tajne ze względu na pacjenta)", "zawsze jawne", "jawne wyłącznie dla członków Naczelnej Rady"],
+                explanations: {
+                    "zawsze niejawne...": "Błąd! Sama rozprawa może być utajniona, ale ogłoszenie sentencji wyroku w państwie prawnym jest bezwzględnie jawne.",
+                    "zawsze jawne": "Prawidłowo! Jawność ogłoszenia wyroku to absolutny standard jawności wymiaru sprawiedliwości.",
+                    "jawne wyłącznie dla członków...": "Błąd! Dostęp na salę w momencie ogłaszania sentencji ma charakter publiczny."
+                }
+            },
+            {
+                id: 37,
+                question: "Orzeczenie wraz z pisemnym uzasadnieniem sąd pierwszej instancji doręcza stronom w terminie:",
+                correct: "30 dni od dnia jego ogłoszenia",
+                options: ["7 dni", "14 dni", "30 dni od dnia jego ogłoszenia"],
+                explanations: {
+                    "7 dni": "Błąd! Za krótki czas na sporządzenie pełnego, pisemnego uzasadnienia prawnego wyroku.",
+                    "14 dni": "Błąd! 14 dni to czas na wniesienie odwołania od momentu doręczenia.",
+                    "30 dni od dnia jego ogłoszenia": "Prawidłowo! Sąd okręgowy ma ustawowy termin 30 dni na pisemne zredagowanie i wysłanie wyroku z uzasadnieniem."
+                }
+            },
+            {
+                id: 38,
+                question: "Od wyroku okręgowego sądu (I instancja) stronom przysługuje odwołanie do Naczelnego Sądu w terminie:",
+                correct: "14 dni od dnia doręczenia orzeczenia z uzasadnieniem",
+                options: ["7 dni", "14 dni od dnia doręczenia orzeczenia z uzasadnieniem", "2 miesięcy"],
+                explanations: {
+                    "7 dni": "Błąd! Termin odwoławczy wynosi dwa tygodnie.",
+                    "14 dni od dnia doręczenia orzeczenia z uzasadnieniem": "Prawidłowo! Strona ma 14 dni na sformułowanie i wniesienie apelacji dyscyplinarnej.",
+                    "2 miesięcy": "Błąd! 2 miesiące to czas na wniesienie skargi kasacyjnej do Sądu Najwyższego."
+                }
+            },
+            {
+                id: 39,
+                question: "Odwołanie od wyroku sądu pierwszej instancji wnosi się bezpośrednio:",
+                correct: "za pośrednictwem sądu pierwszej instancji (okręgowego)",
+                options: ["bezpośrednio do sekretariatu Ministra Zdrowia", "za pośrednictwem sądu pierwszej instancji (okręgowego)", "bezpośrednio do Sądu Najwyższego w Warszawie"],
+                explanations: {
+                    "bezpośrednio do sekretariatu...": "Błąd! Władza wykonawcza nie pośredniczy w pismach procesowych sądów.",
+                    "za pośrednictwem sądu pierwszej instancji (okręgowego)": "Prawidłowo! Pismo adresuje się do Naczelnego Sądu, ale składa fizycznie w sądzie okręgowym, który badał sprawę, by skompletował i przekazał akta.",
+                    "bezpośrednio do Sądu Najwyższego...": "Błąd! Sąd Najwyższy bada kasacje od wyroków drugiej instancji, a nie zwykłe odwołania od pierwszej instancji."
+                }
+            },
+            {
+                id: 40,
+                question: "Orzeczenia Naczelnego Sądu Pielęgniarek i Położnych kończące postępowanie odwoławcze stają się prawomocne z chwilą:",
+                correct: "ich ogłoszenia",
+                options: ["ich ogłoszenia", "doręczenia odpisu do NFZ", "po upływie 6 miesięcy od podpisania przez Ministra"],
+                explanations: {
+                    "ich ogłoszenia": "Prawidłowo! Wyrok sądu drugiej instancji (Naczelnego) jest prawomocny natychmiast, w momencie jego ustnego ogłoszenia na sali.",
+                    "doręczenia odpisu do NFZ": "Błąd! Czynności informacyjne wobec płatnika nie kształtują prawomocności wyroków.",
+                    "po upływie 6 miesięcy...": "Błąd! Minister nie zatwierdza i nie podpisuje wyroków niezawisłych sądów samorządowych."
+                }
+            },
+            {
+                id: 41,
+                question: "Od prawomocnego wyroku Naczelnego Sądu stronom, Ministrowi Zdrowia oraz Prezesowi NRPIP przysługuje skarga kasacyjna do:",
+                correct: "Sądu Najwyższego",
+                options: ["Naczelnego Sądu Administracyjnego (NSA)", "Sądu Najwyższego", "Wojewódzkiego Sądu Pracy"],
+                explanations: {
+                    "Naczelnego Sądu Administracyjnego (NSA)": "Błąd! NSA bada skargi na decyzje administracyjne, a sprawy odpowiedzialności zawodowej personelu medycznego podlegają pod Izbę Karną Sądu Najwyższego.",
+                    "Sądu Najwyższego": "Prawidłowo! Sąd Najwyższy w Warszawie jest instancją kasacyjną dla prawomocnych wyroków korporacyjnych.",
+                    "Wojewódzkiego Sąd Pracy": "Błąd! Sprawy dyscyplinarne samorządu nie są standardowymi sporami ze stosunku pracy."
+                }
+            },
+            {
+                id: 42,
+                question: "Termin na wniesienie skargi kasacyjnej do Sądu Najwyższego wynosi:",
+                correct: "2 miesiące od dnia doręczenia orzeczenia z uzasadnieniem",
+                options: ["14 dni", "30 dni", "2 miesiące od dnia doręczenia orzeczenia z uzasadnieniem"],
+                explanations: {
+                    "14 dni": "Błąd! 14 dni to czas na zwykłe odwołanie wewnątrz struktur samorządowych.",
+                    "30 dni": "Błąd! Skarga kasacyjna wymaga dłuższego czasu na przygotowanie skomplikowanego pisma prawnego.",
+                    "2 miesiące od dnia doręczenia orzeczenia z uzasadnieniem": "Prawidłowo! Ustawa przyznaje pełne 2 miesiące na wniesienie kasacji do SN."
+                }
+            },
+            {
+                id: 43,
+                question: "W toku postępowania kasacyjnego przed Sądem Najwyższym obowiązuje bezwzględny:",
+                correct: "przymus radcowsko-adwokacki (pismo musi sporządzić adwokat/radca)",
+                options: ["wymóg osobistego stawiennictwa pokrzywdzonego pacjenta pod rygorem grzywny", "przymus radcowsko-adwokacki (pismo musi sporządzić adwokat/radca)", "zakaz powoływania obrońców z urzędu"],
+                explanations: {
+                    "wymóg osobistego stawiennictwa...": "Błąd! SN bada sprawę głównie na podstawie dokumentów i zarzutów prawnych, obecność stron nie jest konieczna.",
+                    "przymus radcowsko-adwokacki (pismo musi sporządzić adwokat/radca)": "Prawidłowo! Kasacja to nadzwyczajny środek zaskarżenia i z racji stopnia skomplikowania prawa skargę musi sporządzić i podpisać profesjonalny pełnomocnik.",
+                    "zakaz powoływania obrońców...": "Błąd! Prawo do obrony z urzędu przysługuje również na etapie kasacji przy spełnieniu przesłanek ubóstwa."
+                }
+            },
+            {
+                id: 44,
+                question: "Prawomocne ukaranie którymi karami stanowi dla szpitala podstawę do natychmiastowego rozwiązania umowy bez wypowiedzenia?",
+                correct: "zawieszenia lub pozbawienia prawa wykonywania zawodu",
+                options: ["upomnienia lub nagany", "kary pieniężnej powyżej 5000 zł", "zawieszenia lub pozbawienia prawa wykonywania zawodu"],
+                explanations: {
+                    "upomnienia lub nagany": "Błąd! Te kary nie eliminują z pracy przy pacjencie i nie dają podstaw do dyscyplinarnego zwolnienia.",
+                    "kary pieniężnej powyżej...": "Błąd! Potrącenia finansowe nie skutkują utratą uprawnień do pracy.",
+                    "zawieszenia lub pozbawienia prawa wykonywania zawodu": "Prawidłowo! Utrata uprawnień (czasowa lub stała) uniemożliwia legalne wykonywanie obowiązków, co daje pracodawcy prawo do natychmiastowego zerwania umowy."
+                }
+            },
+            {
+                id: 45,
+                question: "Jeżeli pielęgniarka zostanie prawomocnie uniewinniona, ma prawo żądać opublikowania wyroku w biuletynie izby na koszt:",
+                correct: "okręgowej izby (której jest członkiem)",
+                options: ["pokrzywdzonego pacjenta, który złożył fałszywą skargę", "okręgowej izby (której jest członkiem)", "własny (musi sama zapłacić za druk)"],
+                explanations: {
+                    "pokrzywdzonego pacjenta...": "Błąd! Pacjent nie finansuje biuletynów korporacyjnych samorządu.",
+                    "okręgowej izby (której jest członkiem)": "Prawidłowo! To forma satysfakcji i oczyszczenia dobrego imienia zawodowego profesjonalisty — koszt druku biuletynu ponosi izba.",
+                    "własny...": "Błąd! Ustawa zdejmuje z uniewinnionej ciężar kosztów publikacji."
+                }
+            },
+            {
+                id: 46,
+                question: "Zatarcie ukarania to instytucja prawna polegająca na:",
+                correct: "usunięciu wpisu o ukaraniu z rejestru ukaranych i uznaniu go za niebyły",
+                options: ["automatycznym obniżeniu pensji zasadniczej o 10%", "usunięciu wpisu o ukaraniu z rejestru ukaranych i uznaniu go za niebyły", "bezwzględnym zakazie zmiany miejsca pracy przez 15 lat"],
+                explanations: {
+                    "automatycznym obniżeniu pensji...": "Błąd! Zatarcie to instytucja korzystna dla ukaranego, likwidująca skutki wyroku.",
+                    "usunięciu wpisu o ukaraniu z rejestru ukaranych i uznaniu go za niebyły": "Prawidłowo! Po upływie ustawowego czasu karta ukaranej staje się czysta, a wpis ulega likwidacji.",
+                    "bezwzględnym zakazie zmiany...": "Błąd! Zatarcie nie wprowadza barier terytorialnych zatrudnienia."
+                }
+            },
+            {
+                id: 47,
+                question: "Zatarcie najniższej kary – kary upomnienia – następuje automatycznie z mocy prawa po upływie:",
+                correct: "1 roku od dnia uprawomocnienia się orzeczenia",
+                options: ["6 miesięcy", "1 roku od dnia uprawomocnienia się orzeczenia", "3 lat od dnia wykonania"],
+                explanations: {
+                    "6 miesięcy": "Błąd! Minimalny okres zatarcia wpisu wynosi pełny rok.",
+                    "1 roku od dnia uprawomocnienia się orzeczenia": "Prawidłowo! Wpis o upomnieniu widnieje w rejestrze centralnym sztywno przez rok od prawomocności wyroku.",
+                    "3 lat od dnia wykonania": "Błąd! 3 lata dotyczą kary nagany lub kar finansowych."
+                }
+            },
+            {
+                id: 48,
+                question: "Zatarcie kary nagany następuje automatycznie z mocy prawa po upływie:",
+                correct: "3 lat od dnia uprawomocnienia się orzeczenia",
+                options: ["1 roku", "3 lat od dnia uprawomocnienia się orzeczenia", "5 lat od dnia wykonania"],
+                explanations: {
+                    "1 roku": "Błąd! 1 rok dotyczy kary upomnienia.",
+                    "3 lat od dnia uprawomocnienia się orzeczenia": "Prawidłowo! Kara nagany jako surowsza widnieje w rejestrze przez okres 3 lat od momentu, gdy wyrok stał się prawomocny.",
+                    "5 lat od dnia wykonania": "Błąd! 5 lat dotyczy zatarcia kary zawieszenia PWZ."
+                }
+            },
+            {
+                id: 49,
+                question: "Zatarcie kar o charakterze majątkowym lub strukturalnym (kara pieniężna, zakaz funkcji kierowniczych) następuje po 3 latach liczonych od dnia:",
+                correct: "wykonania orzeczenia (np. zapłaty kwoty)",
+                options: ["popełnienia czynu gwałtownego", "ogłoszenia zarzutów przez rzecznika", "wykonania orzeczenia (np. zapłaty kwoty)"],
+                explanations: {
+                    "popełnienia czynu gwałtownego": "Błąd! Liczenie od czynu dotyczy przedawnienia, a nie zatarcia kary.",
+                    "ogłoszenia zarzutów przez...": "Błąd! Zarzuty nie inicjują wykonania kary.",
+                    "wykonania orzeczenia (np. zapłaty kwoty)": "Prawidłowo! Kluczowe rozróżnienie metodologiczne — czas 3 lat biegnie od momentu PEŁNEGO WYKONANIA kary (np. wpłaty całej kwoty grzywny na cel społeczny)."
+                }
+            },
+            {
+                id: 50,
+                question: "Zatarcie kary zawieszenia prawa wykonywania zawodu następuje automatycznie po upływie:",
+                correct: "5 lat od dnia wykonania orzeczenia (końca okresu zawieszenia)",
+                options: ["1 roku od dnia wyroku", "3 lat od dnia ogłoszenia", "5 lat od dnia wykonania orzeczenia (końca okresu zawieszenia)"],
+                explanations: {
+                    "1 roku od dnia wyroku": "Błąd! To zbyt surowa kara, by ulegała zatarciu po roku.",
+                    "3 lat od dnia ogłoszenia": "Błąd! 3 lata dotyczą nagany i kar pieniężnych.",
+                    "5 lat od dnia wykonania orzeczenia (końca okresu zawieszenia)": "Prawidłowo! Okres 5 lat liczy się od momentu, gdy kara przestała biec (czyli minął pełny czas zawieszenia PWZ)."
+                }
+            },
+            {
+                id: 51,
+                question: "Zatarcie najsurowszej kary – pozbawienia prawa wykonywania zawodu – następuje po upływie:",
+                correct: "15 lat od dnia uprawomocnienia się orzeczenia",
+                options: ["5 lat od dnia wykonania", "15 lat od dnia uprawomocnienia się orzeczenia", "kara ta nigdy nie ulega zatarciu (permanentne wykluczenie)"],
+                explanations: {
+                    "5 lat od dnia wykonania": "Błąd! 5 lat dotyczy terminowej kary zawieszenia PWZ.",
+                    "15 lat od dnia uprawomocnienia się orzeczenia": "Prawidłowo! Ustawa dopuszcza szansę powrotu do zawodu i oczyszczenia rejestru (zatarcie), ale po bardzo długim okresie — po 15 latach od prawomocności wyroku skreślającego.",
+                    "kara ta nigdy nie ulega zatarciu...": "Błąd! Polskie prawo dyscyplinarne unika kar bezwzględnie permanentnych bez instytucji zatarcia; granica wynosi 15 lat."
+                }
+            },
+            {
+                id: 52,
+                question: "Prowadzenie oficjalnego Rejestru Ukaranych Pielęgniarek i Położnych w formie elektronicznej leży w kompetencji:",
+                correct: "Naczelnej Rady Pielęgniarek i Położnych (NRPiP)",
+                options: ["Ministra Sprawiedliwości (Krajowy Rejestr Karny - KRK)", "Naczelnej Rady Pielęgniarek i Położnych (NRPiP)", "Wojewódzkiego Inspektora Sanitarnego"],
+                explanations: {
+                    "Ministra Sprawiedliwości (Krajowy Rejestr Karny - KRK)": "Błąd! KRK zbiera dane o wyrokach za przestępstwa karne powszechne, a wyroki dyscyplinarne rejestruje bezpośrednio izba.",
+                    "Naczelnej Rady Pielęgniarek i Położnych (NRPiP)": "Prawidłowo! Rejestr ukaranych prowadzi centralnie na poziomie krajowym Naczelna Rada.",
+                    "Wojewódzkiego Inspektora Sanitarnego": "Błąd! Sanepid nie prowadzi rejestrów kar dyscyplinarnych personelu."
+                }
+            }
+        ];
+
+        const userAnswers = {};
+
+        function renderQuiz() {
+            const container = document.getElementById('questions-container');
+            container.innerHTML = '';
+
+            quizData.forEach((q) => {
+                const qDiv = document.createElement('div');
+                qDiv.className = "bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden transition-all duration-300";
+                qDiv.id = `q-card-${q.id}`;
+
+                let optionsHTML = '';
+                q.options.forEach(opt => {
+                    optionsHTML += `
+                        <label class="flex items-start gap-3 p-3 rounded-lg border border-slate-200 cursor-pointer hover:bg-slate-50 transition-colors relative group">
+                            <input type="radio" name="q-${q.id}" value="${opt.replace(/"/g, '&quot;')}" 
+                                   onclick="selectAnswer(${q.id}, this.value)" 
+                                   class="mt-1 h-4 w-4 text-teal-600 border-slate-300 focus:ring-teal-500">
+                            <span class="text-sm font-medium text-slate-700 leading-tight">${opt}</span>
+                        </label>
+                    `;
+                });
+
+                qDiv.innerHTML = `
+                    <div class="p-4 border-b border-slate-100 bg-slate-50/50">
+                        <h3 class="text-sm md:text-base font-bold text-slate-900 leading-snug">${q.id}. ${q.question}</h3>
+                    </div>
+                    <div class="p-4 space-y-2" id="options-container-${q.id}">
+                        ${optionsHTML}
+                    </div>
+                    <div class="hidden px-4 py-3 bg-slate-50 border-t border-slate-100 flex flex-col gap-0.5 text-xs md:text-sm" id="feedback-${q.id}">
+                    </div>
+                `;
+                container.appendChild(qDiv);
+            });
+            updateStats();
+        }
+
+        function selectAnswer(questionId, selectedValue) {
+            userAnswers[questionId] = selectedValue;
+            
+            const question = quizData.find(q => q.id === questionId);
+            const isCorrect = (selectedValue === question.correct);
+
+            const card = document.getElementById(`q-card-${questionId}`);
+            if (isCorrect) {
+                card.className = "bg-white rounded-xl shadow-md border-l-4 border-l-emerald-500 border-slate-200 overflow-hidden transition-all duration-300";
+            } else {
+                card.className = "bg-white rounded-xl shadow-md border-l-4 border-l-rose-500 border-slate-200 overflow-hidden transition-all duration-300";
+            }
+
+            const feedbackArea = document.getElementById(`feedback-${questionId}`);
+            feedbackArea.className = `px-4 py-3 border-t border-slate-100 flex flex-col text-xs md:text-sm ${isCorrect ? 'bg-emerald-50 text-emerald-800' : 'bg-rose-50 text-rose-800'}`;
+            
+            const statusText = isCorrect 
+                ? `<span class="font-bold">✓ Prawidłowo!</span>` 
+                : `<span class="font-bold">✗ Błąd. Poprawna odpowiedź: <u>${question.correct}</u></span>`;
+            
+            const explanationText = `<p class="mt-1 text-slate-600 italic bg-white/80 p-2 rounded border border-slate-200/50">${question.explanations[selectedValue]}</p>`;
+            
+            feedbackArea.innerHTML = statusText + explanationText;
+            feedbackArea.style.display = 'flex';
+
+            updateStats();
+        }
+
+        function updateStats() {
+            const answeredCount = Object.keys(userAnswers).length;
+            let correctCount = 0;
+
+            quizData.forEach(q => {
+                if (userAnswers[q.id] === q.correct) {
+                    correctCount++;
+                }
+            });
+
+            document.getElementById('stats-counter').innerText = `Rozwiązano: ${answeredCount} z ${quizData.length} pytań`;
+            document.getElementById('score-display').innerText = `${correctCount} / ${quizData.length}`;
+            
+            const percentage = Math.round((answeredCount / quizData.length) * 100) || 0;
+            const scorePercentage = Math.round((correctCount / quizData.length) * 100) || 0;
+            document.getElementById('percent-display').innerText = `Postęp: ${percentage}% (Wynik: ${scorePercentage}%)`;
+        }
+
+        function showAllCorrectAnswers() {
+            quizData.forEach(q => {
+                const feedbackArea = document.getElementById(`feedback-${q.id}`);
+                feedbackArea.className = "px-4 py-2 border-t border-slate-100 flex flex-col text-xs bg-emerald-50 text-emerald-800";
+                feedbackArea.innerHTML = `<span class="font-bold">Poprawna odpowiedź: <u>${q.correct}</u></span>`;
+                feedbackArea.style.display = 'flex';
+                
+                const card = document.getElementById(`q-card-${q.id}`);
+                card.className = "bg-white rounded-xl shadow-md border-l-4 border-l-emerald-500 border-slate-200 overflow-hidden transition-all duration-300";
+            });
+        }
+
+        function resetTest() {
+            for (let key in userAnswers) {
+                delete userAnswers[key];
+            }
+            renderQuiz();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        window.onload = function() {
+            renderQuiz();
+        };
+    </script>
+</body>
+</html>
