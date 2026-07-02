@@ -1,1 +1,1 @@
-# Prawo-medyczne--odpowiedzialno-zawodowa
+# Prawo-medyczne-odpowiedzialność zawodowa
